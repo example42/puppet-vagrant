@@ -144,9 +144,6 @@
 # [*config_file_group*]
 #   Main configuration file path group
 #
-# [*config_file_init*]
-#   Path of configuration file sourced by init script
-#
 # [*data_dir*]
 #   Path of application data directory. Used by puppi
 #
@@ -197,7 +194,6 @@ class vagrant (
   $config_file_mode    = params_lookup( 'config_file_mode' ),
   $config_file_owner   = params_lookup( 'config_file_owner' ),
   $config_file_group   = params_lookup( 'config_file_group' ),
-  $config_file_init    = params_lookup( 'config_file_init' ),
   $data_dir            = params_lookup( 'data_dir' ),
   $log_dir             = params_lookup( 'log_dir' ),
   $log_file            = params_lookup( 'log_file' )
@@ -265,22 +261,26 @@ class vagrant (
     name   => $vagrant::package,
   }
 
-  file { 'vagrant.conf':
-    ensure  => $vagrant::manage_file,
-    path    => $vagrant::config_file,
-    mode    => $vagrant::config_file_mode,
-    owner   => $vagrant::config_file_owner,
-    group   => $vagrant::config_file_group,
-    require => Package['vagrant'],
-    notify  => $vagrant::manage_service_autorestart,
-    source  => $vagrant::manage_file_source,
-    content => $vagrant::manage_file_content,
-    replace => $vagrant::manage_file_replace,
-    audit   => $vagrant::manage_audit,
+  if $vagrant::config_file {
+    file { 'vagrant.conf':
+      ensure  => $vagrant::manage_file,
+      path    => $vagrant::config_file,
+      mode    => $vagrant::config_file_mode,
+      owner   => $vagrant::config_file_owner,
+      group   => $vagrant::config_file_group,
+      require => Package['vagrant'],
+      notify  => $vagrant::manage_service_autorestart,
+      source  => $vagrant::manage_file_source,
+      content => $vagrant::manage_file_content,
+      replace => $vagrant::manage_file_replace,
+      audit   => $vagrant::manage_audit,
+    }
   }
 
   # The whole vagrant configuration directory can be recursively overriden
-  if $vagrant::source_dir {
+  if $vagrant::source_dir 
+  and $vagrant::config_dir 
+   {
     file { 'vagrant.dir':
       ensure  => directory,
       path    => $vagrant::config_dir,

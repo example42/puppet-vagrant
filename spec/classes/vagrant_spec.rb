@@ -8,7 +8,7 @@ describe 'vagrant' do
 
   describe 'Test standard installation' do
     it { should contain_package('vagrant').with_ensure('present') }
-    it { should contain_file('vagrant.conf').with_ensure('present') }
+    it { should_not contain_file('vagrant.conf').with_ensure('present') }
   end
 
   describe 'Test installation of a specific version' do
@@ -17,14 +17,14 @@ describe 'vagrant' do
   end
 
   describe 'Test decommissioning - absent' do
-    let(:params) { {:absent => true, :monitor => true , :firewall => true} }
+    let(:params) { {:absent => true, :monitor => true , :firewall => true , :config_file => '/etc/vagrant.conf' } }
 
     it 'should remove Package[vagrant]' do should contain_package('vagrant').with_ensure('absent') end 
     it 'should remove vagrant configuration file' do should contain_file('vagrant.conf').with_ensure('absent') end
   end
 
   describe 'Test decommissioning - disable' do
-    let(:params) { {:disable => true, :monitor => true , :firewall => true } }
+    let(:params) { {:disable => true, :monitor => true , :firewall => true , :config_file => '/etc/vagrant.conf' } }
 
     it { should contain_package('vagrant').with_ensure('present') }
     it { should contain_file('vagrant.conf').with_ensure('present') }
@@ -37,7 +37,7 @@ describe 'vagrant' do
   end 
 
   describe 'Test customizations - template' do
-    let(:params) { {:template => "vagrant/spec.erb" , :options => { 'opt_a' => 'value_a' } } }
+    let(:params) { {:template => "vagrant/spec.erb" , :options => { 'opt_a' => 'value_a' } , :config_file => '/etc/vagrant.conf' } }
 
     it 'should generate a valid template' do
       content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:content]
@@ -51,7 +51,7 @@ describe 'vagrant' do
   end
 
   describe 'Test customizations - source' do
-    let(:params) { {:source => "puppet://modules/vagrant/spec" , :source_dir => "puppet://modules/vagrant/dir/spec" , :source_dir_purge => true } }
+    let(:params) { {:source => "puppet://modules/vagrant/spec" , :source_dir => "puppet://modules/vagrant/dir/spec" , :source_dir_purge => true , :config_file => '/etc/vagrant.conf' , :config_dir => '/etc/vagrant/' } }
 
     it 'should request a valid source ' do
       content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:source]
@@ -68,7 +68,7 @@ describe 'vagrant' do
   end
 
   describe 'Test customizations - custom class' do
-    let(:params) { {:my_class => "vagrant::spec" } }
+    let(:params) { {:my_class => "vagrant::spec" , :config_file => '/etc/vagrant.conf' } }
     it 'should automatically include a custom class' do
       content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:content]
       content.should match "fqdn: rspec.example42.com"

@@ -21,11 +21,11 @@ class vagrant::params {
   }
 
   $config_dir = $::operatingsystem ? {
-    default => '/etc/vagrant',
+    default => '',
   }
 
   $config_file = $::operatingsystem ? {
-    default => '/etc/vagrant/vagrant.conf',
+    default => '',
   }
 
   $config_file_mode = $::operatingsystem ? {
@@ -40,13 +40,8 @@ class vagrant::params {
     default => 'root',
   }
 
-  $config_file_init = $::operatingsystem ? {
-    /(?i:Debian|Ubuntu|Mint)/ => '/etc/default/vagrant',
-    default                   => '/etc/sysconfig/vagrant',
-  }
-
   $data_dir = $::operatingsystem ? {
-    default => '/etc/vagrant',
+    default => '/opt/vagrant',
   }
 
   $log_dir = $::operatingsystem ? {
@@ -76,9 +71,9 @@ class vagrant::params {
   $firewall = false
   $firewall_tool = ''
   $firewall_src = '0.0.0.0/0'
-  $firewall_dst = $::ipaddress
+  $firewall_dst = '127.0.0.1'
   $puppi = false
-  $puppi_helper = 'standard'
+  $puppi_helper = 'command'
   $debug = false
   $audit_only = false
 
