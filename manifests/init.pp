@@ -278,9 +278,8 @@ class vagrant (
   }
 
   # The whole vagrant configuration directory can be recursively overriden
-  if $vagrant::source_dir 
-  and $vagrant::config_dir 
-   {
+  if $vagrant::source_dir
+  and $vagrant::config_dir {
     file { 'vagrant.dir':
       ensure  => directory,
       path    => $vagrant::config_dir,
