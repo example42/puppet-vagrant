@@ -14,6 +14,25 @@ This module requires functions provided by the Example42 Puppi module (you need 
 
 For detailed info about the logic and usage patterns of Example42 modules check the DOCS directory on Example42 main modules set.
 
+== USAGE - Module specific 
+
+* Create a Vagrant Multi VM environment. The user has to specified (Note: User must exist)
+
+        vagrant::environment { 'test42':
+          user => 'al'
+        }
+        vagrant::vm { 'test_lenny64':
+          environment => 'test42',
+          box         => 'debian_lenny_64',
+          box_url     => 'http://puppetlabs.s3.amazonaws.com/pub/debian_lenny_64.box',
+        }
+        vagrant::vm { "test_lucid64":
+            environment => "test42" ,
+            box => "lucid64" ,
+            box_url => "http://files.vagrantup.com/lucid64.box"
+        }
+        
+        
 == USAGE - Basic management
 
 * Install vagrant with default settings
@@ -24,17 +43,11 @@ For detailed info about the logic and usage patterns of Example42 modules check 
 
         class { 'vagrant':
           version => '1.0.1',
-        }
-
-* Disable vagrant service.
-
-        class { 'vagrant':
-          disable => true
-        }
+		}
 
 * Remove vagrant package
 
-        class { 'vagrant':
+class { 'vagrant':
           absent => true
         }
 
@@ -46,10 +59,11 @@ For detailed info about the logic and usage patterns of Example42 modules check 
 
 
 == USAGE - Overrides and Customizations
-* Use custom sources for main config file 
+* Use custom sources for a specific config file (by default no config file is managed, it is if you set the config_file param)
 
         class { 'vagrant':
-          source => [ "puppet:///modules/lab42/vagrant/vagrant.conf-${hostname}" , "puppet:///modules/lab42/vagrant/vagrant.conf" ], 
+          config_file => '/etc/vagrant.conf' ,
+          source      => [ "puppet:///modules/lab42/vagrant/vagrant.conf-${hostname}" , "puppet:///modules/lab42/vagrant/vagrant.conf" ], 
         }
 
 
@@ -60,10 +74,11 @@ For detailed info about the logic and usage patterns of Example42 modules check 
           source_dir_purge => false, # Set to true to purge any existing file not present in $source_dir
         }
 
-* Use custom template for main config file. Note that template and source arguments are alternative. 
+* Use custom template for main config file (by default no config file is managed, it is if you set the config_file param). Note that template and source arguments are alternative. 
 
         class { 'vagrant':
-          template => 'example42/vagrant/vagrant.conf.erb',
+          config_file => '/etc/vagrant.conf' ,
+          template    => 'example42/vagrant/vagrant.conf.erb',
         }
 
 * Automatically include a custom subclass
@@ -87,14 +102,14 @@ For detailed info about the logic and usage patterns of Example42 modules check 
           puppi_helper => 'myhelper', 
         }
 
-* Activate automatic monitoring (recommended, but disabled by default). This option requires the usage of Example42 monitor and relevant monitor tools modules
+* Activate automatic monitoring (recommended, but disabled by default). This option requires the usage of Example42 monitor and relevant monitor tools modules. Monitoring is managed for each singleVirtuax box managed with vagrant::vm.
 
         class { 'vagrant':
           monitor      => true,
           monitor_tool => [ 'nagios' , 'monit' , 'munin' ],
         }
 
-* Activate automatic firewalling. This option requires the usage of Example42 firewall and relevant firewall tools modules
+* Activate automatic firewalling. This option requires the usage of Example42 firewall and relevant firewall tools modules. Firewalling is managed for each singleVirtuax box managed with vagrant::vm. 
 
         class { 'vagrant':       
           firewall      => true,
