@@ -5,6 +5,14 @@
 #
 # == Parameters
 #
+# Module specifi parameter
+#
+# [*install*]
+#   Kind of installation to attempt:
+#     - package : Installs vagrant using the OS common packages
+#     - gem  : Installs vagrant as a gem
+#   Can be defined also by the variable $vagrant_install
+#
 # Standard class parameters
 # Define the general class behaviour and customizations
 #
@@ -256,9 +264,17 @@ class vagrant (
   }
 
   ### Managed resources
-  package { 'vagrant':
-    ensure => $vagrant::manage_package,
-    name   => $vagrant::package,
+  include vagrant::install
+
+  if $vagrant::data_dir {
+    file { 'vagrant.data_dir':
+      ensure  => directory,
+      path    => $vagrant::data_dir,
+      mode    => '0755',
+      owner   => $vagrant::config_file_owner,
+      group   => $vagrant::config_file_group,
+      audit   => $vagrant::manage_audit,
+    }
   }
 
   if $vagrant::config_file {
@@ -268,8 +284,6 @@ class vagrant (
       mode    => $vagrant::config_file_mode,
       owner   => $vagrant::config_file_owner,
       group   => $vagrant::config_file_group,
-      require => Package['vagrant'],
-      notify  => $vagrant::manage_service_autorestart,
       source  => $vagrant::manage_file_source,
       content => $vagrant::manage_file_content,
       replace => $vagrant::manage_file_replace,
@@ -283,8 +297,6 @@ class vagrant (
     file { 'vagrant.dir':
       ensure  => directory,
       path    => $vagrant::config_dir,
-      require => Package['vagrant'],
-      notify  => $vagrant::manage_service_autorestart,
       source  => $vagrant::source_dir,
       recurse => true,
       purge   => $vagrant::bool_source_dir_purge,

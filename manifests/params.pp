@@ -14,6 +14,9 @@
 #
 class vagrant::params {
 
+  ### Module specific parameters
+  $install = 'gem'  
+
   ### Application related parameters
 
   $package = $::operatingsystem ? {

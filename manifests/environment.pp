@@ -14,28 +14,28 @@ define vagrant::environment  (
   file { "${vagrant::data_dir}/${name}/manifests":
     ensure  => directory,
     owner   => $user,
-    require => File[ "${vagrant::params::basedir}/${name}"],
+    require => File[ "${vagrant::data_dir}/${name}"],
   }
 
   file { "${vagrant::data_dir}/${name}/manifests/site.pp":
     ensure  => present,
     owner   => $user,
     content => template( $puppet_manifest_file ),
-    require => File[ "${vagrant::params::basedir}/${name}/manifests" ],
+    require => File[ "${vagrant::data_dir}/${name}/manifests" ],
   }
 
   file { "${vagrant::data_dir}/${name}/manifests/puppet.conf.erb":
     ensure  => present,
     owner   => $user,
     content => template('vagrant/puppet/puppet.conf.erb'),
-    require => File[ "${vagrant::params::basedir}/${name}/manifests" ],
+    require => File[ "${vagrant::data_dir}/${name}/manifests" ],
   }
 
 
   concat { "${vagrant::data_dir}/${name}/Vagrantfile":
     mode    => '0644',
     owner   => $user,
-    require => File[ "${vagrant::params::basedir}/${name}"],
+    require => File[ "${vagrant::data_dir}/${name}"],
   }
 
   concat::fragment{ "Vagrantfile_HEADER_${name}":
