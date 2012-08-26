@@ -20,26 +20,6 @@ class vagrant::params {
     default => 'vagrant',
   }
 
-  $service = $::operatingsystem ? {
-    default => 'vagrant',
-  }
-
-  $service_status = $::operatingsystem ? {
-    default => true,
-  }
-
-  $process = $::operatingsystem ? {
-    default => 'vagrant',
-  }
-
-  $process_args = $::operatingsystem ? {
-    default => '',
-  }
-
-  $process_user = $::operatingsystem ? {
-    default => 'vagrant',
-  }
-
   $config_dir = $::operatingsystem ? {
     default => '/etc/vagrant',
   }
@@ -65,10 +45,6 @@ class vagrant::params {
     default                   => '/etc/sysconfig/vagrant',
   }
 
-  $pid_file = $::operatingsystem ? {
-    default => '/var/run/vagrant.pid',
-  }
-
   $data_dir = $::operatingsystem ? {
     default => '/etc/vagrant',
   }
@@ -81,9 +57,6 @@ class vagrant::params {
     default => '/var/log/vagrant/vagrant.log',
   }
 
-  $port = '42'
-  $protocol = 'tcp'
-
   # General Settings
   $my_class = ''
   $source = ''
@@ -91,7 +64,6 @@ class vagrant::params {
   $source_dir_purge = false
   $template = ''
   $options = ''
-  $service_autorestart = true
   $version = 'present'
   $absent = false
   $disable = false

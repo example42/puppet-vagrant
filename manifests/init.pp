@@ -40,11 +40,6 @@
 #   An hash of custom options to be used in templates for arbitrary settings.
 #   Can be defined also by the (top scope) variable $vagrant_options
 #
-# [*service_autorestart*]
-#   Automatically restarts the vagrant service when there is a change in
-#   configuration files. Default: true, Set to false if you don't want to
-#   automatically restart the service.
-#
 # [*version*]
 #   The package version, used in the ensure parameter of package type.
 #   Default: present. Can be 'latest' or a specific version number.
@@ -134,22 +129,6 @@
 # [*package*]
 #   The name of vagrant package
 #
-# [*service*]
-#   The name of vagrant service
-#
-# [*service_status*]
-#   If the vagrant service init script supports status argument
-#
-# [*process*]
-#   The name of vagrant process
-#
-# [*process_args*]
-#   The name of vagrant arguments. Used by puppi and monitor.
-#   Used only in case the vagrant process name is generic (java, ruby...)
-#
-# [*process_user*]
-#   The name of the user vagrant runs with. Used by puppi and monitor.
-#
 # [*config_dir*]
 #   Main configuration directory. Used by puppi
 #
@@ -168,9 +147,6 @@
 # [*config_file_init*]
 #   Path of configuration file sourced by init script
 #
-# [*pid_file*]
-#   Path of pid file. Used by monitor
-#
 # [*data_dir*]
 #   Path of application data directory. Used by puppi
 #
@@ -179,17 +155,6 @@
 #
 # [*log_file*]
 #   Log file(s). Used by puppi
-#
-# [*port*]
-#   The listening port, if any, of the service.
-#   This is used by monitor, firewall and puppi (optional) components
-#   Note: This doesn't necessarily affect the service configuration file
-#   Can be defined also by the (top scope) variable $vagrant_port
-#
-# [*protocol*]
-#   The protocol used by the the service.
-#   This is used by monitor, firewall and puppi (optional) components
-#   Can be defined also by the (top scope) variable $vagrant_protocol
 #
 #
 # == Examples
@@ -210,7 +175,6 @@ class vagrant (
   $source_dir          = params_lookup( 'source_dir' ),
   $source_dir_purge    = params_lookup( 'source_dir_purge' ),
   $template            = params_lookup( 'template' ),
-  $service_autorestart = params_lookup( 'service_autorestart' , 'global' ),
   $options             = params_lookup( 'options' ),
   $version             = params_lookup( 'version' ),
   $absent              = params_lookup( 'absent' ),
@@ -228,27 +192,18 @@ class vagrant (
   $debug               = params_lookup( 'debug' , 'global' ),
   $audit_only          = params_lookup( 'audit_only' , 'global' ),
   $package             = params_lookup( 'package' ),
-  $service             = params_lookup( 'service' ),
-  $service_status      = params_lookup( 'service_status' ),
-  $process             = params_lookup( 'process' ),
-  $process_args        = params_lookup( 'process_args' ),
-  $process_user        = params_lookup( 'process_user' ),
   $config_dir          = params_lookup( 'config_dir' ),
   $config_file         = params_lookup( 'config_file' ),
   $config_file_mode    = params_lookup( 'config_file_mode' ),
   $config_file_owner   = params_lookup( 'config_file_owner' ),
   $config_file_group   = params_lookup( 'config_file_group' ),
   $config_file_init    = params_lookup( 'config_file_init' ),
-  $pid_file            = params_lookup( 'pid_file' ),
   $data_dir            = params_lookup( 'data_dir' ),
   $log_dir             = params_lookup( 'log_dir' ),
-  $log_file            = params_lookup( 'log_file' ),
-  $port                = params_lookup( 'port' ),
-  $protocol            = params_lookup( 'protocol' )
+  $log_file            = params_lookup( 'log_file' )
   ) inherits vagrant::params {
 
   $bool_source_dir_purge=any2bool($source_dir_purge)
-  $bool_service_autorestart=any2bool($service_autorestart)
   $bool_absent=any2bool($absent)
   $bool_disable=any2bool($disable)
   $bool_disableboot=any2bool($disableboot)
@@ -262,30 +217,6 @@ class vagrant (
   $manage_package = $vagrant::bool_absent ? {
     true  => 'absent',
     false => $vagrant::version,
-  }
-
-  $manage_service_enable = $vagrant::bool_disableboot ? {
-    true    => false,
-    default => $vagrant::bool_disable ? {
-      true    => false,
-      default => $vagrant::bool_absent ? {
-        true  => false,
-        false => true,
-      },
-    },
-  }
-
-  $manage_service_ensure = $vagrant::bool_disable ? {
-    true    => 'stopped',
-    default =>  $vagrant::bool_absent ? {
-      true    => 'stopped',
-      default => 'running',
-    },
-  }
-
-  $manage_service_autorestart = $vagrant::bool_service_autorestart ? {
-    true    => Service[vagrant],
-    false   => undef,
   }
 
   $manage_file = $vagrant::bool_absent ? {
@@ -334,15 +265,6 @@ class vagrant (
     name   => $vagrant::package,
   }
 
-  service { 'vagrant':
-    ensure     => $vagrant::manage_service_ensure,
-    name       => $vagrant::service,
-    enable     => $vagrant::manage_service_enable,
-    hasstatus  => $vagrant::service_status,
-    pattern    => $vagrant::process,
-    require    => Package['vagrant'],
-  }
-
   file { 'vagrant.conf':
     ensure  => $vagrant::manage_file,
     path    => $vagrant::config_file,
@@ -388,43 +310,6 @@ class vagrant (
       helper    => $vagrant::puppi_helper,
     }
   }
-
-
-  ### Service monitoring, if enabled ( monitor => true )
-  if $vagrant::bool_monitor == true {
-    monitor::port { "vagrant_${vagrant::protocol}_${vagrant::port}":
-      protocol => $vagrant::protocol,
-      port     => $vagrant::port,
-      target   => $vagrant::monitor_target,
-      tool     => $vagrant::monitor_tool,
-      enable   => $vagrant::manage_monitor,
-    }
-    monitor::process { 'vagrant_process':
-      process  => $vagrant::process,
-      service  => $vagrant::service,
-      pidfile  => $vagrant::pid_file,
-      user     => $vagrant::process_user,
-      argument => $vagrant::process_args,
-      tool     => $vagrant::monitor_tool,
-      enable   => $vagrant::manage_monitor,
-    }
-  }
-
-
-  ### Firewall management, if enabled ( firewall => true )
-  if $vagrant::bool_firewall == true {
-    firewall { "vagrant_${vagrant::protocol}_${vagrant::port}":
-      source      => $vagrant::firewall_src,
-      destination => $vagrant::firewall_dst,
-      protocol    => $vagrant::protocol,
-      port        => $vagrant::port,
-      action      => 'allow',
-      direction   => 'input',
-      tool        => $vagrant::firewall_tool,
-      enable      => $vagrant::manage_firewall,
-    }
-  }
-
 
   ### Debugging, if enabled ( debug => true )
   if $vagrant::bool_debug == true {
