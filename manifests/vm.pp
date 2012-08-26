@@ -44,7 +44,7 @@ define vagrant::vm (
   include concat::setup
 
   concat::fragment{ "Vagrantfile_vm_$environment_$name":
-    target  => "${vagrant::basedir}/${environment}/Vagrantfile",
+    target  => "${vagrant::data_dir}/${environment}/Vagrantfile",
     content => template("vagrant/concat/Vagrantfile_vm.erb"),
     order   => $order,
     ensure  => $ensure,
