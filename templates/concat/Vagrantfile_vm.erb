@@ -1,32 +1,65 @@
   config.vm.define :<%= name %> do |<%= name %>_config|
     <%= name %>_config.vm.box = "<%= box %>"
-<% if forward_name != '' -%>
-    <%= name %>_config.vm.forward_port("<%= forward_name %>", <%= forward_guestport %>, <%= forward_hostport %>)
+<% if box_url != '' -%>
+    <%= name %>_config.vm.box_url = "<%= box_url %>"
+<% end -%>
+<% if forward_forward_guestport != '' -%>
+    <%= name %>_config.vm.forward_port <%= forward_guestport %>, <%= forward_hostport %>
 <% end -%>
 <% if network != '' -%>
-    <%= name %>_config.vm.network "<%= network %>"
+    <%= name %>_config.vm.network :<%= network %><% if ip_address != '' -%>, "<%= ip_address %>"<% end -%> 
 <% end -%>
 <% if box_url != '' -%>
     <%= name %>_config.vm.box_url = "<%= box_url %>"
 <% end -%>
 <% if share_name != '' -%>
-    <%= name %>_config.vm.share_folder "<%= share_name %>", "<%= share_guestmount %>", "<%= share_hostdir %>"
+    <%= name %>_config.vm.share_folder("<%= share_name %>", "<%= share_guestmount %>", "<%= share_hostdir %>")
 <% end -%>
 <% if boot_mode == 'gui' -%>
    <%= name %>_config.vm.boot_mode = :gui
 <% end -%>
+
 <% if provision == 'puppet' -%>
     <%= name %>_config.vm.provision :puppet do |puppet|
-#      puppet.manifests_path = "manifests"
-      puppet.manifest_file  = "site.pp"
-#      puppet.puppet_server = "<%= puppet_server %>"
-#      puppet.puppet_node = "<%= puppet_node %>"
+      puppet.manifests_path = "<%= puppet_manifest_path %>"
+      puppet.manifest_file  = "<%= puppet_manifest_file %>"
+<% if puppet_module_path != '' -%>
+      puppet.module_path  = "<%= puppet_module_path %>"
+<% end -%>
+<% if puppet_options != '' -%>
+      puppet.options = "<%= puppet_options %>"
+<% end -%>
+<% end -%>
+
+<% if provision == 'puppet_server' -%>
+    <%= name %>_config.vm.provision :puppet_server do |puppet|
+      puppet.puppet_server = "<%= puppet_server %>"
+<% if puppet_node != '' -%>
+      puppet.puppet_node = "<%= puppet_node %>"
+<% end -%>
+<% if puppet_options != '' -%>
+      puppet.options = "<%= puppet_options %>"
+<% end -%>
     end
 <% end -%>
+
+<% if provision == 'chef_solo' -%>
+    <%= name %>_config.vm.provision :chef_solo do |chef|
+      chef.cookbooks_path = "<%= chef_cookbooks_path %>"
+    end
+<% end -%>
+
 <% if provision == 'chef_server' -%>
     <%= name %>_config.vm.provision :chef_server do |chef|
       chef.chef_server_url = "https://api.opscode.com/organizations/<%= chef_orgname %>"
       chef.validation_key_path = "<%= chef_orgname %>-validator.pem"
     end
 <% end -%>
+
+<% if provision == 'shell' -%>
+    <%= name %>_config.vm.provision :shell do |shell|
+      shell.path = "<%= shell_path %>"
+    end
+<% end -%>
+
   end
