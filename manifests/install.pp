@@ -13,7 +13,7 @@
 #
 class vagrant::install inherits vagrant {
 
-  case $vagrant::install {
+  case $::vagrant::install {
 
     package: {
       package { 'vagrant':
