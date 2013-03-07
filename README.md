@@ -1,4 +1,4 @@
-= Puppet module: vagrant
+# Puppet module: vagrant
 
 This is a Puppet module for vagrant based on the second generation layout ("NextGen") of Example42 Puppet Modules.
 
@@ -14,7 +14,7 @@ This module requires functions provided by the Example42 Puppi module (you need 
 
 For detailed info about the logic and usage patterns of Example42 modules check the DOCS directory on Example42 main modules set.
 
-== USAGE - Module specific 
+## USAGE - Module specific 
 
 * Create a Vagrant Multi VM environment. The user has to specified (Note: User must exist)
 
@@ -33,7 +33,7 @@ For detailed info about the logic and usage patterns of Example42 modules check 
         }
         
         
-== USAGE - Basic management
+## USAGE - Basic management
 
 * Install vagrant with default settings
 
@@ -58,7 +58,7 @@ class { 'vagrant':
         }
 
 
-== USAGE - Overrides and Customizations
+## USAGE - Overrides and Customizations
 * Use custom sources for a specific config file (by default no config file is managed, it is if you set the config_file param)
 
         class { 'vagrant':
@@ -88,7 +88,7 @@ class { 'vagrant':
         }
 
 
-== USAGE - Example42 extensions management 
+## USAGE - Example42 extensions management 
 * Activate puppi (recommended, but disabled by default)
 
         class { 'vagrant':
