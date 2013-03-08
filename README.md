@@ -118,3 +118,5 @@ class { 'vagrant':
           firewall_dst  => $ipaddress_eth0,
         }
 
+
+[![Build Status](https://travis-ci.org/example42/puppet-vagrant.png?branch=master)](https://travis-ci.org/example42/puppet-vagrant)
