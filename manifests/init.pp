@@ -176,6 +176,7 @@
 #
 class vagrant (
   $my_class            = params_lookup( 'my_class' ),
+  $install             = params_lookup( 'install' ),
   $source              = params_lookup( 'source' ),
   $source_dir          = params_lookup( 'source_dir' ),
   $source_dir_purge    = params_lookup( 'source_dir_purge' ),
