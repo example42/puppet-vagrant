@@ -40,12 +40,10 @@ describe 'vagrant' do
     let(:params) { {:template => "vagrant/spec.erb" , :options => { 'opt_a' => 'value_a' } , :config_file => '/etc/vagrant.conf' } }
 
     it 'should generate a valid template' do
-      content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:content]
-      content.should match "fqdn: rspec.example42.com"
+      should contain_file('vagrant.conf').with_content(/fqdn: rspec.example42.com/)
     end
     it 'should generate a template that uses custom options' do
-      content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:content]
-      content.should match "value_a"
+      should contain_file('vagrant.conf').with_content(/value_a/)
     end
 
   end
@@ -54,24 +52,20 @@ describe 'vagrant' do
     let(:params) { {:source => "puppet://modules/vagrant/spec" , :source_dir => "puppet://modules/vagrant/dir/spec" , :source_dir_purge => true , :config_file => '/etc/vagrant.conf' , :config_dir => '/etc/vagrant/' } }
 
     it 'should request a valid source ' do
-      content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:source]
-      content.should == "puppet://modules/vagrant/spec"
+      should contain_file('vagrant.conf').with_source('puppet://modules/vagrant/spec')
     end
     it 'should request a valid source dir' do
-      content = catalogue.resource('file', 'vagrant.dir').send(:parameters)[:source]
-      content.should == "puppet://modules/vagrant/dir/spec"
+      should contain_file('vagrant.dir').with_source('puppet://modules/vagrant/dir/spec')
     end
     it 'should purge source dir if source_dir_purge is true' do
-      content = catalogue.resource('file', 'vagrant.dir').send(:parameters)[:purge]
-      content.should == true
+      should contain_file('vagrant.dir').with_purge('true')
     end
   end
 
   describe 'Test customizations - custom class' do
     let(:params) { {:my_class => "vagrant::spec" , :config_file => '/etc/vagrant.conf' } }
     it 'should automatically include a custom class' do
-      content = catalogue.resource('file', 'vagrant.conf').send(:parameters)[:content]
-      content.should match "fqdn: rspec.example42.com"
+      should contain_file('vagrant.conf').with_content(/fqdn: rspec.example42.com/)
     end
   end
 
@@ -79,8 +73,7 @@ describe 'vagrant' do
     let(:params) { {:puppi => true, :puppi_helper => "myhelper"} }
 
     it 'should generate a puppi::ze define' do
-      content = catalogue.resource('puppi::ze', 'vagrant').send(:parameters)[:helper]
-      content.should == "myhelper"
+      should contain_puppi__ze('vagrant').with_helper('myhelper')
     end
   end
 
